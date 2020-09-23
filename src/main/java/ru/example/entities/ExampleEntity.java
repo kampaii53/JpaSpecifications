@@ -19,6 +19,16 @@ public class ExampleEntity {
     @OneToMany(mappedBy = "parent")
     private List<ExampleChildEntity> children;
 
+    public ExampleEntity() {
+    }
+
+    public ExampleEntity(String field1, String field2, int field3, List<ExampleChildEntity> children) {
+        this.field1 = field1;
+        this.field2 = field2;
+        this.field3 = field3;
+        this.children = children;
+    }
+
     public Long getId() {
         return id;
     }

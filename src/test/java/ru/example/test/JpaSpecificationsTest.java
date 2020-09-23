@@ -16,6 +16,8 @@ import ru.example.repositories.ExampleEntityRepository;
 import ru.example.test.config.H2JpaConfiguration;
 import ru.example.utils.JpaSpecificationsBuilder;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -40,6 +42,23 @@ public class JpaSpecificationsTest {
         exampleEntityRepository.save(new ExampleEntity());
         SearchCriteria criterion = new SearchCriteria("id", SearchOperation.MORE,"0",null, JoinType.AND);
 
+        assertEquals(1,exampleEntityRepository.findAll(specificationsBuilder.buildSpecification(criterion)).size());
+    }
+
+    @Test
+    public void getWhereMoreAndLess(){
+        exampleEntityRepository.save(new ExampleEntity(null,null,3,null));
+        exampleEntityRepository.save(new ExampleEntity(null,null,5,null));
+        exampleEntityRepository.save(new ExampleEntity(null,null,0,null));
+
+        SearchCriteria criterion = new SearchCriteria(
+                null,null,null,
+                Arrays.asList(
+                        new SearchCriteria("field3",SearchOperation.MORE,"0",null,null),
+                        new SearchCriteria("field3",SearchOperation.LESS,"5",null,null)
+                ),
+                JoinType.AND
+        );
         assertEquals(1,exampleEntityRepository.findAll(specificationsBuilder.buildSpecification(criterion)).size());
     }
 }
