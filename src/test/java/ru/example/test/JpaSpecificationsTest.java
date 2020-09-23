@@ -7,7 +7,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import ru.example.common.JoinType;
 import ru.example.common.SearchCriteria;
+import ru.example.common.SearchOperation;
 import ru.example.entities.ExampleEntity;
 import ru.example.repositories.ExampleChildEntityRepository;
 import ru.example.repositories.ExampleEntityRepository;
@@ -36,7 +38,7 @@ public class JpaSpecificationsTest {
     @Test
     public void testExecution(){
         exampleEntityRepository.save(new ExampleEntity());
-        SearchCriteria criterion = new SearchCriteria("id", SearchCriteria.SearchOperation.MORE,"0",null, SearchCriteria.JoinType.AND);
+        SearchCriteria criterion = new SearchCriteria("id", SearchOperation.MORE,"0",null, JoinType.AND);
 
         assertEquals(1,exampleEntityRepository.findAll(specificationsBuilder.buildSpecification(criterion)).size());
     }

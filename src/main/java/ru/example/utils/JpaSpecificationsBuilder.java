@@ -1,7 +1,9 @@
 package ru.example.utils;
 
 import org.springframework.data.jpa.domain.Specification;
+import ru.example.common.JoinType;
 import ru.example.common.SearchCriteria;
+import ru.example.common.SearchOperation;
 import ru.example.utils.predicates.PredicateBuilder;
 import ru.example.utils.predicates.impl.*;
 
@@ -20,12 +22,12 @@ import java.util.stream.Stream;
  */
 public class JpaSpecificationsBuilder<T> {
 
-    private Map<SearchCriteria.SearchOperation, PredicateBuilder> predicateBuilders = Stream.of(
-            new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.EQ,new EqPredicateBuilder()),
-            new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.MORE,new MorePredicateBuilder()),
-            new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.MOREQ,new MoreqPredicateBuilder()),
-            new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.LESS,new LessPredicateBuilder()),
-            new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.LESSEQ,new LesseqPredicateBuilder())
+    private Map<SearchOperation, PredicateBuilder> predicateBuilders = Stream.of(
+            new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.EQ,new EqPredicateBuilder()),
+            new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.MORE,new MorePredicateBuilder()),
+            new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.MOREQ,new MoreqPredicateBuilder()),
+            new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.LESS,new LessPredicateBuilder()),
+            new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.LESSEQ,new LesseqPredicateBuilder())
     ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     /**
@@ -43,13 +45,13 @@ public class JpaSpecificationsBuilder<T> {
      * @param joinType how to merge collection items
      * @return merged specification
      */
-    public Specification<T> mergeSpecifications(List<Specification> specifications, SearchCriteria.JoinType joinType) {
+    public Specification<T> mergeSpecifications(List<Specification> specifications, JoinType joinType) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             specifications.forEach(specification -> predicates.add(specification.toPredicate(root, query, cb)));
 
-            if(joinType.equals(SearchCriteria.JoinType.AND)){
+            if(joinType.equals(JoinType.AND)){
                 return cb.and(predicates.toArray(new Predicate[0]));
             }
             else{
@@ -69,7 +71,7 @@ public class JpaSpecificationsBuilder<T> {
                 // TODO add recursion limit
                 predicates.add(buildPredicate(root,cb,subCriterion));
             }
-            if(SearchCriteria.JoinType.AND.equals(criterion.getJoinType())){
+            if(JoinType.AND.equals(criterion.getJoinType())){
                 return cb.and(predicates.toArray(new Predicate[0]));
             }
             else{

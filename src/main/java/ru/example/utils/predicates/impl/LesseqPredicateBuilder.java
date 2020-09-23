@@ -1,6 +1,7 @@
 package ru.example.utils.predicates.impl;
 
 import ru.example.common.SearchCriteria;
+import ru.example.common.SearchOperation;
 import ru.example.utils.predicates.PredicateBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,8 +11,8 @@ import java.time.LocalDateTime;
 
 public class LesseqPredicateBuilder implements PredicateBuilder {
     @Override
-    public SearchCriteria.SearchOperation getManagedOperation() {
-        return SearchCriteria.SearchOperation.LESSEQ;
+    public SearchOperation getManagedOperation() {
+        return SearchOperation.LESSEQ;
     }
 
     @Override

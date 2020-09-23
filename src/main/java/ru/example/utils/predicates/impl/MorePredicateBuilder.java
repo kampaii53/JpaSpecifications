@@ -2,6 +2,7 @@ package ru.example.utils.predicates.impl;
 
 import org.springframework.stereotype.Component;
 import ru.example.common.SearchCriteria;
+import ru.example.common.SearchOperation;
 import ru.example.utils.predicates.PredicateBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 @Component
 public class MorePredicateBuilder implements PredicateBuilder {
     @Override
-    public SearchCriteria.SearchOperation getManagedOperation() {
-        return SearchCriteria.SearchOperation.MORE;
+    public SearchOperation getManagedOperation() {
+        return SearchOperation.MORE;
     }
 
     @Override

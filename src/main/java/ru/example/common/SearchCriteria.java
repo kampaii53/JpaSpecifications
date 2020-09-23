@@ -1,98 +1,16 @@
 package ru.example.common;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import java.util.Arrays;
 import java.util.List;
 
 public class SearchCriteria {
 
     private String key;
 
-    /**
-     * Оператор сравнения
-     */
-    public enum SearchOperation {
-
-        MORE("MORE"),
-
-        LESS("LESS"),
-
-        EQ("EQ"),
-
-        MOREQ("MOREQ"),
-
-        LESSEQ("LESSEQ");
-
-        private String value;
-
-        SearchOperation(String value) {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
-
-        /**
-         * Получить значение енума из строки
-         *
-         * @param text строковое представление значения енума
-         * @return значение енума
-         */
-        @JsonCreator
-        public static SearchCriteria.SearchOperation fromValue(String text) {
-            return Arrays.stream(SearchOperation.values())
-                    .filter(candidate -> candidate.value.equals(text))
-                    .findFirst()
-                    .orElse(null);
-        }
-    }
-
     private SearchOperation operation;
 
     private String value;
 
     private List<SearchCriteria> criteria;
-
-    /**
-     * Тип соединения с условием
-     */
-    public enum JoinType {
-
-        AND("AND"),
-
-        OR("OR");
-
-        private String value;
-
-        JoinType(String value) {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
-
-        /**
-         * Получить значение енума из строки
-         *
-         * @param text строковое представление значения енума
-         * @return значение енума
-         */
-        @JsonCreator
-        public static JoinType fromValue(String text) {
-            return Arrays.stream(JoinType.values())
-                    .filter(candidate -> candidate.value.equals(text))
-                    .findFirst()
-                    .orElse(null);
-        }
-    }
 
     private JoinType joinType;
 
