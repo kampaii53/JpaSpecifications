@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * The thing to build specifications for complex JPA requests
+ * @param <T> the entity you build request on
+ * @author kampaii
+ */
 public class JpaSpecificationsBuilder<T> {
 
     private Map<SearchCriteria.SearchOperation, PredicateBuilder> predicateBuilders = Stream.of(
@@ -23,14 +28,45 @@ public class JpaSpecificationsBuilder<T> {
             new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.LESSEQ,new LesseqPredicateBuilder())
     ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    /**
+     * builds JPA specification based on criteria you make
+     * @param criterion tree of criteria
+     * @return specification, which you can then pass to repository
+     */
     public Specification<T> buildSpecification(SearchCriteria criterion){
         return (root, query, cb) -> buildPredicate(root,cb,criterion);
     }
 
+    /**
+     * merges your specification to one in jointype manner
+     * @param specifications your collection
+     * @param joinType how to merge collection items
+     * @return merged specification
+     */
+    public Specification<T> mergeSpecifications(List<Specification> specifications, SearchCriteria.JoinType joinType) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            specifications.forEach(specification -> predicates.add(specification.toPredicate(root, query, cb)));
+
+            if(joinType.equals(SearchCriteria.JoinType.AND)){
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+            else{
+                return cb.or(predicates.toArray(new Predicate[0]));
+            }
+
+        };
+    }
+
+    /**
+     * recursively builds predicates based on passed criterion
+     */
     private Predicate buildPredicate(Root<T> root, CriteriaBuilder cb, SearchCriteria criterion) {
         if(criterion.isComplex()){
             List<Predicate> predicates = new ArrayList<>();
             for (SearchCriteria subCriterion : criterion.getCriteria()) {
+                // TODO add recursion limit
                 predicates.add(buildPredicate(root,cb,subCriterion));
             }
             if(SearchCriteria.JoinType.AND.equals(criterion.getJoinType())){
@@ -43,6 +79,9 @@ public class JpaSpecificationsBuilder<T> {
         return predicateBuilders.get(criterion.getOperation()).getPredicate(cb,buildPath(root, criterion.getKey()),criterion);
     }
 
+    /**
+     * builds path to the endpoint field of entity
+     */
     private Path buildPath(Root<T> root, String key) {
 
         if (!key.contains(".")) {
