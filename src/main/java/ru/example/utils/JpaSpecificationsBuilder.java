@@ -43,6 +43,10 @@ public class JpaSpecificationsBuilder<T> {
         };
     }
 
+    public Specification<T> buildSpecification(SearchCriteria criterion){
+        return (root, query, cb) -> buildPredicate(root,cb,criterion);
+    }
+
     public Specification<T> buildAndSpecification(List<SearchCriteria> criteria) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -68,8 +72,17 @@ public class JpaSpecificationsBuilder<T> {
     }
 
     private Predicate buildPredicate(Root<T> root, CriteriaBuilder cb, SearchCriteria criterion) {
-        if(criterion.getCriteria() != null && criterion.getCriteria().size() > 0){
-
+        if(criterion.isComplex()){
+            List<Predicate> predicates = new ArrayList<>();
+            for (SearchCriteria subCriterion : criterion.getCriteria()) {
+                predicates.add(buildPredicate(root,cb,subCriterion));
+            }
+            if(SearchCriteria.JoinType.AND.equals(criterion.getJoinType())){
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+            else{
+                return cb.or(predicates.toArray(new Predicate[0]));
+            }
         }
         return predicateBuilders.get(criterion.getOperation()).getPredicate(cb,buildPath(root, criterion.getKey()),criterion);
     }
