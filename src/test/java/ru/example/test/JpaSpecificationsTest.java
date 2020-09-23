@@ -14,8 +14,6 @@ import ru.example.repositories.ExampleEntityRepository;
 import ru.example.test.config.H2JpaConfiguration;
 import ru.example.utils.JpaSpecificationsBuilder;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -37,9 +35,9 @@ public class JpaSpecificationsTest {
 
     @Test
     public void testExecution(){
-        ExampleEntity c = exampleEntityRepository.save(new ExampleEntity());
-        SearchCriteria criteria = new SearchCriteria("id", SearchCriteria.SearchOperation.MORE,"0",null, SearchCriteria.JoinType.AND);
+        exampleEntityRepository.save(new ExampleEntity());
+        SearchCriteria criterion = new SearchCriteria("id", SearchCriteria.SearchOperation.MORE,"0",null, SearchCriteria.JoinType.AND);
 
-        assertEquals(1,exampleEntityRepository.findAll(specificationsBuilder.buildAndSpecification(Collections.singletonList(criteria))).size());
+        assertEquals(1,exampleEntityRepository.findAll(specificationsBuilder.buildSpecification(criterion)).size());
     }
 }

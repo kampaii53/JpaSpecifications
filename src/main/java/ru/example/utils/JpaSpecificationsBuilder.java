@@ -23,52 +23,8 @@ public class JpaSpecificationsBuilder<T> {
             new AbstractMap.SimpleEntry<SearchCriteria.SearchOperation,PredicateBuilder>(SearchCriteria.SearchOperation.LESSEQ,new LesseqPredicateBuilder())
     ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    public Specification<T> buildSpecification(List<SearchCriteria> criteria){
-        return (root, query, cb) -> {
-            if(criteria == null || criteria.size() == 0){
-                return null;
-            }
-
-            Predicate result = buildPredicate(root,cb,criteria.get(0));
-            for (int i = 1; i < criteria.size(); i++) {
-                final SearchCriteria criterion = criteria.get(i);
-                if(criterion.getJoinType() == SearchCriteria.JoinType.AND){
-                    result = cb.and(result,buildPredicate(root,cb, criterion));
-                }
-                else{
-                    result = cb.or(result,buildPredicate(root,cb,criterion));
-                }
-            }
-            return result;
-        };
-    }
-
     public Specification<T> buildSpecification(SearchCriteria criterion){
         return (root, query, cb) -> buildPredicate(root,cb,criterion);
-    }
-
-    public Specification<T> buildAndSpecification(List<SearchCriteria> criteria) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            for (SearchCriteria criterion : criteria) {
-                predicates.add(buildPredicate(root, cb, criterion));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-    public Specification<T> buildOrSpecification(List<SearchCriteria> criteria) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            for (SearchCriteria criterion : criteria) {
-                predicates.add(buildPredicate(root, cb, criterion));
-            }
-
-            return cb.or(predicates.toArray(new Predicate[0]));
-        };
     }
 
     private Predicate buildPredicate(Root<T> root, CriteriaBuilder cb, SearchCriteria criterion) {
