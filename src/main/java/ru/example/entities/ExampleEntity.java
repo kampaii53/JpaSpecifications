@@ -10,23 +10,31 @@ public class ExampleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String field1;
+    private int value;
 
-    private String field2;
-
-    private int field3;
-
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
     private List<ExampleChildEntity> children;
+
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
+    private List<ExampleSecondChildEntity> children2;
 
     public ExampleEntity() {
     }
 
-    public ExampleEntity(String field1, String field2, int field3, List<ExampleChildEntity> children) {
-        this.field1 = field1;
-        this.field2 = field2;
-        this.field3 = field3;
+    public ExampleEntity(int value, List<ExampleChildEntity> children) {
+        this.value = value;
         this.children = children;
+        if(children!=null) {
+            children.forEach(exampleChildEntity -> exampleChildEntity.setParent(this));
+        }
+    }
+
+    public ExampleEntity(int value, List<ExampleChildEntity> children, List<ExampleSecondChildEntity> children2) {
+        this(value,children);
+        this.children2 = children2;
+        if(this.children2!=null) {
+            this.children2.forEach(child -> child.setParent(this));
+        }
     }
 
     public Long getId() {
@@ -37,27 +45,27 @@ public class ExampleEntity {
         this.id = id;
     }
 
-    public String getField1() {
-        return field1;
+    public int getValue() {
+        return value;
     }
 
-    public void setField1(String field1) {
-        this.field1 = field1;
+    public void setValue(int value) {
+        this.value = value;
     }
 
-    public String getField2() {
-        return field2;
+    public List<ExampleChildEntity> getChildren() {
+        return children;
     }
 
-    public void setField2(String field2) {
-        this.field2 = field2;
+    public void setChildren(List<ExampleChildEntity> children) {
+        this.children = children;
     }
 
-    public int getField3() {
-        return field3;
+    public List<ExampleSecondChildEntity> getChildren2() {
+        return children2;
     }
 
-    public void setField3(int field3) {
-        this.field3 = field3;
+    public void setChildren2(List<ExampleSecondChildEntity> children2) {
+        this.children2 = children2;
     }
 }

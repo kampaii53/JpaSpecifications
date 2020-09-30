@@ -1,10 +1,9 @@
 package ru.example.entities;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-public class ExampleChildEntity {
+public class ExampleSecondChildEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,20 +12,10 @@ public class ExampleChildEntity {
     @ManyToOne
     private ExampleEntity parent;
 
-    @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
-    private List<ExampleSubChildEntity> children;
-
     private int value;
 
-    public ExampleChildEntity(int value) {
+    public ExampleSecondChildEntity(int value) {
         this.value = value;
-    }
-
-    public ExampleChildEntity(int value, List<ExampleSubChildEntity> children){
-        this(value);
-        this.children = children;
-
-        children.forEach(child -> child.setParent(this));
     }
 
     public Long getId() {
@@ -51,13 +40,5 @@ public class ExampleChildEntity {
 
     public void setValue(int value) {
         this.value = value;
-    }
-
-    public List<ExampleSubChildEntity> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<ExampleSubChildEntity> children) {
-        this.children = children;
     }
 }

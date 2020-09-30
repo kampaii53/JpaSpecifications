@@ -8,10 +8,7 @@ import ru.example.utils.predicates.PredicateBuilder;
 import ru.example.utils.predicates.impl.*;
 
 import javax.persistence.criteria.*;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +18,9 @@ import java.util.stream.Stream;
  * @author kampaii
  */
 public class JpaSpecificationsBuilder<T> {
+
+    //path context
+    private Map<String,Join<Object, Object>> joinMap = new HashMap<>();
 
     private Map<SearchOperation, PredicateBuilder> predicateBuilders = Stream.of(
             new AbstractMap.SimpleEntry<SearchOperation,PredicateBuilder>(SearchOperation.EQ,new EqPredicateBuilder()),
@@ -91,11 +91,23 @@ public class JpaSpecificationsBuilder<T> {
         } else {
             String[] path = key.split("\\.");
 
-            Join<Object, Object> join = root.join(path[0]);
-            for (int i = 1; i < path.length - 1; i++) {
-                join = join.join(path[i]);
+            String subpath = "";
+            for (int i = 0; i < path.length-1; i++) {
+                if(i == 0){
+                    subpath = path[0];
+                    if(joinMap.get(subpath) == null){
+                        joinMap.put(subpath,root.join(subpath));
+                    }
+                    continue;
+                }
+                subpath = Stream.of(path).limit(i+1).collect(Collectors.joining("."));
+                if(joinMap.get(subpath) == null){
+                    String prevPath = Stream.of(path).limit(i).collect(Collectors.joining("."));
+                    joinMap.put(subpath,joinMap.get(prevPath).join(path[i]));
+                }
             }
-            return join.get(path[path.length - 1]);
+
+            return joinMap.get(subpath).get(path[path.length - 1]);
         }
 
     }
