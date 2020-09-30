@@ -19,6 +19,7 @@ import java.util.stream.Stream;
  */
 public class JpaSpecificationsBuilder<T> {
 
+    //path context
     private Map<String,Join<Object, Object>> joinMap = new HashMap<>();
 
     private Map<SearchOperation, PredicateBuilder> predicateBuilders = Stream.of(
@@ -97,6 +98,7 @@ public class JpaSpecificationsBuilder<T> {
                     if(joinMap.get(subpath) == null){
                         joinMap.put(subpath,root.join(subpath));
                     }
+                    continue;
                 }
                 subpath = Stream.of(path).limit(i+1).collect(Collectors.joining("."));
                 if(joinMap.get(subpath) == null){
