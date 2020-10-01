@@ -169,4 +169,22 @@ public class JpaSpecificationsTest {
         assertEquals(1, entities.size());
     }
 
+
+    @Test
+    public void mergeSpecifications(){
+        exampleEntityRepository.save(new ExampleEntity(1, Collections.singletonList(new ExampleChildEntity(1))));
+        exampleEntityRepository.save(new ExampleEntity(2, Collections.singletonList(new ExampleChildEntity(2))));
+        exampleEntityRepository.save(new ExampleEntity(3, Collections.singletonList(new ExampleChildEntity(3))));
+
+        assertEquals(3,
+            exampleEntityRepository.findAll(specificationsBuilder.mergeSpecifications(
+                    Arrays.asList(
+                            specificationsBuilder.buildSpecification(new SearchCriteria("children.value",SearchOperation.EQ,"1",null,null)),
+                            specificationsBuilder.buildSpecification(new SearchCriteria("children.value",SearchOperation.EQ,"2",null,null)),
+                            specificationsBuilder.buildSpecification(new SearchCriteria("children.value",SearchOperation.EQ,"3",null,null))
+                    ),
+                    JoinType.OR
+            )).size()
+        );
+    }
 }

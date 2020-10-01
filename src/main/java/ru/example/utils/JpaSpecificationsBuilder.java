@@ -36,6 +36,7 @@ public class JpaSpecificationsBuilder<T> {
      * @return specification, which you can then pass to repository
      */
     public Specification<T> buildSpecification(SearchCriteria criterion){
+        this.joinMap.clear();
         return (root, query, cb) -> buildPredicate(root,cb,criterion);
     }
 
@@ -91,15 +92,11 @@ public class JpaSpecificationsBuilder<T> {
         } else {
             String[] path = key.split("\\.");
 
-            String subpath = "";
+            String subpath = path[0];
+            if(joinMap.get(subpath) == null){
+                joinMap.put(subpath,root.join(subpath));
+            }
             for (int i = 0; i < path.length-1; i++) {
-                if(i == 0){
-                    subpath = path[0];
-                    if(joinMap.get(subpath) == null){
-                        joinMap.put(subpath,root.join(subpath));
-                    }
-                    continue;
-                }
                 subpath = Stream.of(path).limit(i+1).collect(Collectors.joining("."));
                 if(joinMap.get(subpath) == null){
                     String prevPath = Stream.of(path).limit(i).collect(Collectors.joining("."));
